@@ -28,10 +28,8 @@ rand_word3 <- unlist(rand_word3)
 
 # Inform the user about instructions and the number of wrong guesses/tries allowed
 
-cat("\nWelcome to Olivia's Hangman game!\n")
-cat("\n How to play: when prompted, please guess one letter at a time.\n")
-cat("\n If the letter guess is not in the word, you lose a life.\n")
-cat("\n You may also guess the full word at anytime for a win!")
+cat("\nWelcome to Hangman! How to play: when prompted, please guess one letter at a time.\n")
+cat("\n If the letter guess is not in the word, you lose a life.You may also guess the full word at anytime for a win!\n")
 cat("\n Quit the game anytime by typing 'quit'. You have 10 guesses. Good luck!\n")
 
 # Tell the user how many characters in the word
@@ -40,15 +38,26 @@ print(paste0("Hint:your word is ", num_char, " letters long.")) # returning that
 
 # Create a vector to store progress of letter guessing 
 
-#lettr_prog <- c()
-#for (letter in rand_word3) {
-# lettr_prog <- append(lettr_prog, "_")
-#}
+progress_word <- c()
+for (letter in rand_word3) {
+  progress_word <- append(progress_word, '_')
+}
+
+# Function to inform user of their progress on guessing secret word
+user_progress <- function(progress) {
+  cat("\n-> Your progress so far: ")
+  cat(paste(progress, collapse = ' '))
+  cat("\n-> Guess again!\n")
+  cat("\n\n")
+}
 
 # Create a function to display number of lives left
 lives <- 10
 
 letters <- nchar(rand_word2)
+
+#
+guessed_letters <- c()
 
 # Create a function that allows user to keep track of letters guessed
 lettrs_guessed <- "letters:"
@@ -73,32 +82,27 @@ while (lives > 0) {
   # Create if statement for dealing with invalid inputs
   else if (grepl("^[A-Za-z]+$", input_lettr, perl = T) == F) {
     cat("\n-> Please input letters ONLY!\n")
-    # Create a statement for if the user inputs 2 or more characters that arent the guess or the exit 
-    # must be after the exit and the full word input 
+
   } else if (nchar(input_lettr) > 1) {
     cat("\n-> Please only guess ONE letter at a time!\n\n")
   } else {
     # Create a statement for when the player guesses a letter they have already guessed 
     # Statement for when the player guesses the letter correctly, if the user guesses incorrectly 
     if (grepl(input_lettr, rand_word2, ignore.case = T)) {
-      # If the letter is guessed correctly, locate the position in the secret word where the letter is 
-      #lettr_position <- which(rand_word3 == input_lettr)
-      #lettrs_guessed <- paste(lettrs_guessed, input_lettr)
-      lettrs_guessed <- append(lettrs_guessed, input_lettr)
-      print(lettrs_guessed)
       print("Correct guess! Good job.")
-      # Place the correctly guessed letter in the letter progress vector - gives user visual 
-      # of where their correct guesses are 
-      #for (pos in lettr_position) {
-      #lettr_prog[pos] <- input_lettr
-      # next
+      guessed_letters <- append(guessed_letters, input_lettr)
+      cat("-> Letters guessed: ")
+      cat(paste(guessed_letters, collapse = ', '))
+      cat("\n")
       letters < letters - 1
-    } 
-    else {
+    } else { # Code handling incorrect guesses. Subtract 1 life for each.
       print(paste("Oh no!" , input_lettr, " is not in the secret word!"))
       lives <- lives - 1
       print(paste("You have ", lives, " lives left!"))
-      lettrs_guessed <- paste(lettrs_guessed, input_lettr)
+      guessed_letters <- append(guessed_letters, input_lettr)
+      cat("-> Letters guessed: ")
+      cat(paste(guessed_letters, collapse = ', '))
+      cat("\n")
     }   
     # Statement for if a user guesses the word correctly with individual letter guesses
     #... instead of guessing the whole word in one go
@@ -109,7 +113,6 @@ while (lives > 0) {
       cat("\n You have won the game! Thank you for playing and come again. \n\n")
       break
     }
-    # Code handling incorrect guesses. Subtract 1 life for each.
     # Checking if the user has run out of lives, if so, game will quit
     if (lives == 0) {
       print("You have run out of lives!")
@@ -118,8 +121,5 @@ while (lives > 0) {
     }
   }
 }
-
-
-# Displaying progress to user after each unsuccessful guess.
 
 
