@@ -10,7 +10,6 @@ library(stringr)
 hangman_dict <- read.table(file = "/Users/olivia/Desktop/hangman_dict1.txt", header = F)
 hangman_words <- hangman_dict$V1
 
-# Create a prompt for them to enter that starts game ??
 # Choose a random element from the dictionary
 rand_word <- sample(1:length(hangman_words), 1)
 
@@ -21,11 +20,6 @@ rand_word2 <- hangman_words[rand_word]
 rand_word3 <- strsplit(hangman_words[rand_word], split = '')
 rand_word3 <- unlist(rand_word3)
 
-# Give user hint about length of letters in word
-# Combine these two so they automatically happen together .... select random word
-# and then prints below 
-
-
 # Inform the user about instructions and the number of wrong guesses/tries allowed
 
 cat("\nWelcome to Hangman! How to play: when prompted, please guess one letter at a time.\n")
@@ -34,90 +28,88 @@ cat("\n Quit the game anytime by typing 'quit'. You have 10 guesses. Good luck!\
 
 # Tell the user how many characters in the word
 num_char <- nchar(hangman_words[rand_word])
-print(paste0("Hint:your word is ", num_char, " letters long.")) # returning that its 9 letters long
+print(paste0("Hint:your word is ", num_char, " letters long."))
 
-# Create a vector to store progress of letter guessing 
-
+# Create a function to track progress of letter guessing when an input letter is guessed correctly
+# Will add it to the correct spot in the word 
 progress_word <- c()
-for (letter in rand_word3) {
+for (input_lettr in rand_word3) {
   progress_word <- append(progress_word, '_')
 }
 
-# Function to inform user of their progress on guessing secret word
+# Function to inform user of their progress on guessing the mystery word
 user_progress <- function(progress) {
-  cat("\n-> Your progress so far: ")
+  cat("\n-> Your progress: ")
   cat(paste(progress, collapse = ' '))
-  cat("\n-> Guess again!\n")
-  cat("\n\n")
+  cat("\nGuess again!\n")
 }
 
-# Create a function to display number of lives left
+# Create a function to store number of lives user has left 
 lives <- 10
 
-letters <- nchar(rand_word2)
-
-#
+# Created an empty vector to store guessed letters
 guessed_letters <- c()
 
-# Create a function that allows user to keep track of letters guessed
-lettrs_guessed <- "letters:"
-
-# Ask for user input, only allow one character to be entered 
+# Create a loop that checks if the the user still has lives left - when lives are greater than zero 
+# this loop will function
 while (lives > 0) {
-  
+
+# Ask user for their guess
   input_lettr <- readline("Please input a letter guess: ") 
   
-  # Create statement for exiting the game upon user request
+# Create statement for exiting the game upon user request
   if (input_lettr == "quit") {
     (print("Exiting game now, please come again!"))
     break
   }
-  # Create statement for when player guesses correct answer  
+# Create statement for when player guesses correct answer by typing in full word, ends game
   else if (input_lettr == rand_word2) {
-    cat("\n You guessed correctly!\n")
+    cat("\n WINNER ALERT!!!You guessed correctly!\n")
     cat(paste("The word was:", rand_word2, "\n"))
-    cat("\n You have won the game! Thank you for playing and come again. \n\n")
+    cat("\n You have won the game! Thank you for playing and come again.\n\n")
     break
   }
-  # Create if statement for dealing with invalid inputs
+# Create if statement for dealing with invalid inputs (characters other than upper or lower case letters)
   else if (grepl("^[A-Za-z]+$", input_lettr, perl = T) == F) {
     cat("\n-> Please input letters ONLY!\n")
-
+# Blocks users from putting in more than one letter at a time that is not "quit" or the mystery word
   } else if (nchar(input_lettr) > 1) {
-    cat("\n-> Please only guess ONE letter at a time!\n\n")
+    cat("\nHELLO! Please only guess ONE letter at a time!\n\n")
   } else {
-    # Create a statement for when the player guesses a letter they have already guessed 
-    # Statement for when the player guesses the letter correctly, if the user guesses incorrectly 
+# Statement that checks if the user guessed the letter correctly 
     if (grepl(input_lettr, rand_word2, ignore.case = T)) {
       print("Correct guess! Good job.")
+      # Adds the letter to the list of letters guesses
       guessed_letters <- append(guessed_letters, input_lettr)
-      cat("-> Letters guessed: ")
+      cat("Letters guessed: ")
       cat(paste(guessed_letters, collapse = ', '))
-      cat("\n")
-      letters < letters - 1
-    } else { # Code handling incorrect guesses. Subtract 1 life for each.
+      # Displays user progress and places it in the correct position in the mystery word
+      user_progress(progress_word) 
+      numb_positions <- which(rand_word3 == input_lettr)
+      for (position in numb_positions) {
+        progress_word[position] <- input_lettr
+      }
+    } else { # Statement for incorrect guesses, lose one life each time
       print(paste("Oh no!" , input_lettr, " is not in the secret word!"))
-      lives <- lives - 1
-      print(paste("You have ", lives, " lives left!"))
+      lives <- lives - 1 
+      print(paste("You have ", lives, " lives left!")) 
+      # Adds the letter to list of letters guessed
       guessed_letters <- append(guessed_letters, input_lettr)
       cat("-> Letters guessed: ")
       cat(paste(guessed_letters, collapse = ', '))
-      cat("\n")
     }   
-    # Statement for if a user guesses the word correctly with individual letter guesses
-    #... instead of guessing the whole word in one go
-    
-    if (letters == 0) {
-      cat("\n You guessed correctly!\n")
+# Statement for if a user guesses the word correctly with individual letter guesses instead of guessing the whole word in one go
+    if (paste(progress_word, collapse = '') == rand_word2) {
+      cat("\n WOOHOO!! You guessed correctly!\n")
       cat(paste("The word was:", rand_word2, "\n"))
-      cat("\n You have won the game! Thank you for playing and come again. \n\n")
+      cat("\n You won! Thank you for playing and come again. \n\n")
       break
     }
-    # Checking if the user has run out of lives, if so, game will quit
+# Checks if lives are left, no lives left game will quit
     if (lives == 0) {
-      print("You have run out of lives!")
-      print(paste("The mystery word was", rand_word2, "!"))
-      print("Better luck next time! ;)")
+      cat("\nYou are out of lives! :(\n")
+      print(paste("The word was", rand_word2, "!"))
+      cat("\nBetter luck next time! Exiting game.\n")
     }
   }
 }
